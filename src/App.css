@@ -2,17 +2,39 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
 }
 
 .code-wrap {
   display: flex;
+  flex-direction: column;
   margin: 50px auto;
   align-items: center;
 }
+@media screen and (min-width: 992px) {
+  .code-wrap {
+    flex-direction: row;
+    align-items: center;
+  }
+}
 
-.column {
+.button__container {
   width: 300px;
   margin: 50px;
+}
+
+@media screen and (min-width: 992px) {
+  .button__container {
+    width: 150px;
+    margin: 10px;
+  }
+}
+.code__container {
+  width: 300px;
+  margin: 20px;
+  border: solid 1px;
+  padding: 25px;
+  border-radius: 10px;
 }
 
 button {
@@ -21,6 +43,6 @@ button {
   margin: auto;
 }
 
-.line:nth-child(3) {
+/* .line:nth-child(3) {
   margin-left: 20px;
-}
+} */
