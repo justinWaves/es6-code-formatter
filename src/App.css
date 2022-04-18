@@ -20,7 +20,7 @@
 
 .button__container {
   width: 300px;
-  margin: 50px;
+  margin: 20px;
 }
 
 @media screen and (min-width: 992px) {
@@ -31,10 +31,26 @@
 }
 .code__container {
   width: 300px;
-  margin: 20px;
+  margin: 15px;
   border: solid 1px;
   padding: 25px;
   border-radius: 10px;
+}
+
+@media screen and (max-width: 400px) {
+  .code__container {
+    width: 100%;
+    padding: 0px;
+    margin: 0px;
+    margin-bottom: 15px;
+    margin-top: 15px;
+    border: none;
+  }
+}
+
+.code__container--title {
+  position: relative;
+  top: 10px;
 }
 
 button {
@@ -42,7 +58,3 @@ button {
   height: 50px;
   margin: auto;
 }
-
-/* .line:nth-child(3) {
-  margin-left: 20px;
-} */

@@ -2,6 +2,7 @@ import { captureRejectionSymbol } from "events";
 import React, { useState, useMemo } from "react";
 import { isString } from "util";
 import "./App.css";
+import Dialog from "./Dialog";
 
 function App() {
   const reservedKeywordList = [
@@ -59,14 +60,34 @@ function App() {
     "}",
   ];
 
+  const test1 = [
+    "  var arr = [];",
+    'arr[0] = "Jani";',
+    'arr[1] = "Hege";',
+    'arr[2] = "Stale";',
+    'arr[3] = "Kai Jim";',
+    'arr[4] = "Borge";',
+  ];
+
   const [showFormatted, setShowFormatted] = useState(false);
   const [unformattedCode, setUnformattedCode] = useState<string[]>(lines);
-  const [formattedCode, setFormattedCode] = useState<(JSX.Element | string)[]>(
-    []
-  );
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const formatCode = () => {
     setShowFormatted((prev) => !prev);
+  };
+
+  const openDialogOnClick = () => {
+    setIsDialogOpen((prev) => !prev);
+  };
+
+  const handleCancel = () => {
+    setIsDialogOpen(false);
+  };
+
+  const handleSubmit = (newFormData: string[]) => {
+    setUnformattedCode(newFormData);
+    setIsDialogOpen(false);
   };
 
   const renderUnformattedCode = () => {
@@ -85,7 +106,7 @@ function App() {
     const inputArrayToString = preserveSpaceAndLineBreaks.flat().join("");
 
     const styledStringLiterals = inputArrayToString.replace(
-      /(?=['"`]).*(?<=['"`])/g,
+      /(?=['"`]).*(['"`])/g,
       (match) => {
         return '<span style="color:green">' + match + "</span>";
       }
@@ -106,46 +127,55 @@ function App() {
     const styledVariables = styledStringLiterals.replace(
       regexForVariableSearch(),
       (match) => {
-        return '<span style="color:blue">' + match + "</span>";
+        return (
+          '<span style="color:blue; font-weight:bold;">' + match + "</span>"
+        );
       }
     );
-
     const regexForKeywordSearch = new RegExp(
       reservedKeywordList.join("|") + "(?![^{{]*}})",
       "gi"
     );
-
     const styleReservedKeywords = styledVariables.replace(
       regexForKeywordSearch,
       (match) => {
         return "<strong>" + match + "</strong>";
       }
     );
-
     const styledNumbers = styleReservedKeywords.replace(/\b\d+\b/g, (match) => {
       return '<span style="color:red">' + match + "</span>";
     });
 
-    console.log(styledNumbers);
-
     return <div dangerouslySetInnerHTML={{ __html: styledNumbers }}></div>;
   };
 
+  const finalRender = useMemo(() => {
+    return renderFormattedCode();
+  }, [unformattedCode]);
+
   return (
     <div className="App">
+      <Dialog
+        isOpen={isDialogOpen}
+        onCancel={handleCancel}
+        onSubmit={handleSubmit}
+        inputCodeState={unformattedCode}
+      />
       <div className="code-wrap">
         <div className="code__container">
-          <h1 style={{ color: "red" }}>Code</h1>
+          <h1>Code</h1>
           {renderUnformattedCode()}
         </div>
         <div className="button__container">
           <button onClick={formatCode}>
             {showFormatted ? "Remove Formatting" : "Format Code"}
           </button>
+          <hr />
+          <button onClick={openDialogOnClick}>Change Input Code</button>
         </div>
         <div className="code__container">
           <h1>{showFormatted ? "Formatted" : "Unformatted"}</h1>
-          {showFormatted ? renderFormattedCode() : renderUnformattedCode()}
+          {showFormatted ? finalRender : renderUnformattedCode()}
         </div>
       </div>
     </div>
