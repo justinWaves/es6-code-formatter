@@ -1,6 +1,4 @@
-import { captureRejectionSymbol } from "events";
 import React, { useState, useMemo } from "react";
-import { isString } from "util";
 import "./App.css";
 import Dialog from "./Dialog";
 
@@ -84,20 +82,19 @@ function App() {
   const renderUnformattedCode = () => {
     return unformattedCode.map((line, i) => {
       const codeWithSpace = line.replace(/\s/g, "\u00a0");
-
       return <div key={i}>{codeWithSpace}</div>;
     });
   };
 
   const renderFormattedCode = () => {
-    const preserveSpaceAndLineBreaks = unformattedCode.map((line) => {
-      const codeWithSpaces = line.replace(/\s/g, "\u00a0") + "<br/>";
-      return codeWithSpaces;
+    const preserveSpacesAndLineBreaks = unformattedCode.map((line) => {
+      const output = line.replace(/\s/g, "\u00a0") + "<br/>";
+      return output;
     });
 
-    const newArrayToString = preserveSpaceAndLineBreaks.flat().join("");
+    const compiledCodeToString = preserveSpacesAndLineBreaks.flat().join("");
 
-    const styledStringLiterals = newArrayToString.replace(
+    const styledStringLiterals = compiledCodeToString.replace(
       /['"`](.*?)['"`]/g,
       (match) => {
         return '<span style="color:green">' + match + "</span>";
@@ -144,7 +141,6 @@ function App() {
     const styledNumbers = styleReservedKeywords.replace(/\b\d+\b/g, (match) => {
       return '<span style="color:red">' + match + "</span>";
     });
-    console.log(styledNumbers);
 
     return <div dangerouslySetInnerHTML={{ __html: styledNumbers }}></div>;
   };

@@ -1,6 +1,5 @@
 import React, { useState, useRef } from "react";
 import "./Dialog.css";
-
 interface DialogProps {
   isOpen: boolean;
   onCancel: () => void;
