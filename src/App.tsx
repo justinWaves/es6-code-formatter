@@ -27,7 +27,7 @@ function App() {
     "function",
     "if",
     "implements",
-    // "import",
+    "import",
     "in",
     "instanceof",
     "interface",
@@ -58,15 +58,6 @@ function App() {
     "for (let i = 1; i <= 10; i++) {",
     "    console.log(`Pass number ${i}`);",
     "}",
-  ];
-
-  const test1 = [
-    "  var arr = [];",
-    'arr[0] = "Jani";',
-    'arr[1] = "Hege";',
-    'arr[2] = "Stale";',
-    'arr[3] = "Kai Jim";',
-    'arr[4] = "Borge";',
   ];
 
   const [showFormatted, setShowFormatted] = useState(false);
@@ -103,22 +94,27 @@ function App() {
       const codeWithSpaces = line.replace(/\s/g, "\u00a0") + "<br/>";
       return codeWithSpaces;
     });
-    const inputArrayToString = preserveSpaceAndLineBreaks.flat().join("");
 
-    const styledStringLiterals = inputArrayToString.replace(
-      /(?=['"`]).*(['"`])/g,
+    const newArrayToString = preserveSpaceAndLineBreaks.flat().join("");
+
+    const styledStringLiterals = newArrayToString.replace(
+      /['"`](.*?)['"`]/g,
       (match) => {
         return '<span style="color:green">' + match + "</span>";
       }
     );
 
     const identifiedVariables = styledStringLiterals.match(
-      /(?<=let\s|var\s|const\s).*(?=\s=)/g
+      /(?<=let\s+|var\s+|const\s+)(.*?)(?==)/g
+    );
+    //for some reason regex would not allow deselect at space. quick and dirty fix below
+    const variablesWithoutSpaces = identifiedVariables?.map((item) =>
+      item.trim()
     );
 
     const regexForVariableSearch = () => {
-      if (identifiedVariables) {
-        return new RegExp(identifiedVariables.join("|") + "(?![^{{]*}})", "gi");
+      if (variablesWithoutSpaces) {
+        return new RegExp(variablesWithoutSpaces.join("|"), "g");
       } else {
         return "";
       }
@@ -132,19 +128,23 @@ function App() {
         );
       }
     );
+
     const regexForKeywordSearch = new RegExp(
-      reservedKeywordList.join("|") + "(?![^{{]*}})",
-      "gi"
+      "\\b(" + reservedKeywordList.join("|") + ")\\b" + "(?![^{{]*}})",
+      "g"
     );
+
     const styleReservedKeywords = styledVariables.replace(
       regexForKeywordSearch,
       (match) => {
         return "<strong>" + match + "</strong>";
       }
     );
+
     const styledNumbers = styleReservedKeywords.replace(/\b\d+\b/g, (match) => {
       return '<span style="color:red">' + match + "</span>";
     });
+    console.log(styledNumbers);
 
     return <div dangerouslySetInnerHTML={{ __html: styledNumbers }}></div>;
   };

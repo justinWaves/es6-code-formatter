@@ -1,15 +1,13 @@
 .App {
   display: flex;
-  justify-content: center;
-  align-items: center;
   width: 100%;
 }
 
 .code-wrap {
   display: flex;
   flex-direction: column;
-  margin: 50px auto;
   align-items: center;
+  margin: 25px auto;
 }
 @media screen and (min-width: 992px) {
   .code-wrap {
@@ -30,27 +28,28 @@
   }
 }
 .code__container {
-  width: 300px;
-  margin: 15px;
+  width: 350px;
+  height: 60vh;
   border: solid 1px;
   padding: 25px;
   border-radius: 10px;
+  overflow: scroll;
 }
 
-@media screen and (max-width: 400px) {
+@media screen and (max-width: 992px) {
   .code__container {
-    width: 100%;
-    padding: 0px;
-    margin: 0px;
-    margin-bottom: 15px;
-    margin-top: 15px;
-    border: none;
+    margin: 15px;
+    border: solid 1px;
+    padding: 25px;
+    border-radius: 10px;
   }
 }
 
-.code__container--title {
-  position: relative;
-  top: 10px;
+@media screen and (max-width: 490px) {
+  .code__container {
+    width: 100%;
+    border: none;
+  }
 }
 
 button {

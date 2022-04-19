@@ -46,7 +46,10 @@ export default function Dialog({
           onPaste={handleTextChange}
         ></textarea>
         <div className="dialog__footer" onMouseEnter={convertStringToArray}>
-          <button onClick={onCancel}>Never Mind</button>
+          <button className="dialog__cancelButton" onClick={onCancel}>
+            Never Mind
+          </button>
+          <hr /> <hr /> <hr />
           <button onClick={handleFormSubmit}>Submit</button>
         </div>
       </div>
