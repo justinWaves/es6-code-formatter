@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import "./App.css";
 import Dialog from "./Dialog";
 
@@ -104,7 +104,7 @@ function App() {
     const identifiedVariables = styledStringLiterals.match(
       /(?<=let\s+|var\s+|const\s+)(.*?)(?==)/g
     );
-    //for some reason regex would not allow deselect at space. quick and dirty fix below
+
     const variablesWithoutSpaces = identifiedVariables?.map((item) =>
       item.trim()
     );

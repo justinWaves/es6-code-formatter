@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import { useState } from "react";
 import "./Dialog.css";
 interface DialogProps {
   isOpen: boolean;
@@ -42,7 +42,6 @@ export default function Dialog({
           autoFocus
           value={inputString}
           onChange={handleTextChange}
-          onPaste={handleTextChange}
         ></textarea>
         <div className="dialog__footer" onMouseEnter={convertStringToArray}>
           <button className="dialog__cancelButton" onClick={onCancel}>
