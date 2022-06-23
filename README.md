@@ -1,6 +1,6 @@
 # Hello, thank you for reviewing! 🌊🌊
 
-I had an excellent time with this coding challenge, and look forward to discussing my solution.
+I had an excellent time with this coding challenge, and look forward to the review!
 
 🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊
 
