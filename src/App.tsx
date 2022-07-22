@@ -2,62 +2,125 @@ import { useState, useMemo } from "react";
 import "./App.css";
 import Dialog from "./Dialog";
 
+const renderFormattedCode = (unformattedCode: String[]) => {
+  const preserveSpacesAndLineBreaks = unformattedCode.map((line) => {
+    const output = line.replace(/\s/g, "\u00a0") + "<br/>";
+    return output;
+  });
+
+  const compiledCodeToString = preserveSpacesAndLineBreaks.flat().join("");
+
+  const styledStringLiterals = compiledCodeToString.replace(
+    /['"`](.*?)['"`]/g,
+    (match) => {
+      return '<span style="color:green">' + match + "</span>";
+    }
+  );
+
+  const identifiedVariables = styledStringLiterals.match(
+    /(?<=let\s+|var\s+|const\s+)(.*?)(?==)/g
+  );
+
+  const variablesWithoutSpaces = identifiedVariables?.map((item) =>
+    item.trim()
+  );
+
+  const regexForVariableSearch = () => {
+    if (variablesWithoutSpaces) {
+      return new RegExp(variablesWithoutSpaces.join("|"), "g");
+    } else {
+      return "";
+    }
+  };
+
+  const styledVariables = styledStringLiterals.replace(
+    regexForVariableSearch(),
+    (match) => {
+      return '<span style="color:blue; font-weight:bold;">' + match + "</span>";
+    }
+  );
+
+  const regexForKeywordSearch = new RegExp(
+    "\\b(" + reservedKeywordList.join("|") + ")\\b" + "(?![^{{]*}})",
+    "g"
+  );
+
+  const styleReservedKeywords = styledVariables.replace(
+    regexForKeywordSearch,
+    (match) => {
+      return "<strong>" + match + "</strong>";
+    }
+  );
+
+  const styledNumbers = styleReservedKeywords.replace(/\b\d+\b/g, (match) => {
+    return '<span style="color:red">' + match + "</span>";
+  });
+
+  return <div dangerouslySetInnerHTML={{ __html: styledNumbers }}></div>;
+};
+
+const renderUnformattedCode = (unformattedCode: String[]) => {
+  return unformattedCode.map((line, i) => {
+    const codeWithSpace = line.replace(/\s/g, "\u00a0");
+    return <div key={i}>{codeWithSpace}</div>;
+  });
+};
+const reservedKeywordList = [
+  "await",
+  "break",
+  "case",
+  "catch",
+  "class",
+  "const",
+  "continue",
+  "debugger",
+  "default",
+  "delete",
+  "do",
+  "else",
+  "enum",
+  "export",
+  "extends",
+  "false",
+  "finally",
+  "for",
+  "function",
+  "if",
+  "implements",
+  "import",
+  "in",
+  "instanceof",
+  "interface",
+  "let",
+  "new",
+  "null",
+  "package",
+  "private",
+  "protected",
+  "public",
+  "return",
+  "super",
+  "switch",
+  "static",
+  "this",
+  "throw",
+  "try",
+  "True",
+  "typeof",
+  "var",
+  "void",
+  "while",
+  "with",
+  "yield",
+];
+
+const lines = [
+  "for (let i = 1; i <= 10; i++) {",
+  "    console.log(`Pass number ${i}`);",
+  "}",
+];
+
 function App() {
-  const reservedKeywordList = [
-    "await",
-    "break",
-    "case",
-    "catch",
-    "class",
-    "const",
-    "continue",
-    "debugger",
-    "default",
-    "delete",
-    "do",
-    "else",
-    "enum",
-    "export",
-    "extends",
-    "false",
-    "finally",
-    "for",
-    "function",
-    "if",
-    "implements",
-    "import",
-    "in",
-    "instanceof",
-    "interface",
-    "let",
-    "new",
-    "null",
-    "package",
-    "private",
-    "protected",
-    "public",
-    "return",
-    "super",
-    "switch",
-    "static",
-    "this",
-    "throw",
-    "try",
-    "True",
-    "typeof",
-    "var",
-    "void",
-    "while",
-    "with",
-    "yield",
-  ];
-
-  const lines = [
-    "for (let i = 1; i <= 10; i++) {",
-    "    console.log(`Pass number ${i}`);",
-    "}",
-  ];
-
   const [showFormatted, setShowFormatted] = useState(false);
   const [unformattedCode, setUnformattedCode] = useState<string[]>(lines);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -79,74 +142,8 @@ function App() {
     setIsDialogOpen(false);
   };
 
-  const renderUnformattedCode = () => {
-    return unformattedCode.map((line, i) => {
-      const codeWithSpace = line.replace(/\s/g, "\u00a0");
-      return <div key={i}>{codeWithSpace}</div>;
-    });
-  };
-
-  const renderFormattedCode = () => {
-    const preserveSpacesAndLineBreaks = unformattedCode.map((line) => {
-      const output = line.replace(/\s/g, "\u00a0") + "<br/>";
-      return output;
-    });
-
-    const compiledCodeToString = preserveSpacesAndLineBreaks.flat().join("");
-
-    const styledStringLiterals = compiledCodeToString.replace(
-      /['"`](.*?)['"`]/g,
-      (match) => {
-        return '<span style="color:green">' + match + "</span>";
-      }
-    );
-
-    const identifiedVariables = styledStringLiterals.match(
-      /(?<=let\s+|var\s+|const\s+)(.*?)(?==)/g
-    );
-
-    const variablesWithoutSpaces = identifiedVariables?.map((item) =>
-      item.trim()
-    );
-
-    const regexForVariableSearch = () => {
-      if (variablesWithoutSpaces) {
-        return new RegExp(variablesWithoutSpaces.join("|"), "g");
-      } else {
-        return "";
-      }
-    };
-
-    const styledVariables = styledStringLiterals.replace(
-      regexForVariableSearch(),
-      (match) => {
-        return (
-          '<span style="color:blue; font-weight:bold;">' + match + "</span>"
-        );
-      }
-    );
-
-    const regexForKeywordSearch = new RegExp(
-      "\\b(" + reservedKeywordList.join("|") + ")\\b" + "(?![^{{]*}})",
-      "g"
-    );
-
-    const styleReservedKeywords = styledVariables.replace(
-      regexForKeywordSearch,
-      (match) => {
-        return "<strong>" + match + "</strong>";
-      }
-    );
-
-    const styledNumbers = styleReservedKeywords.replace(/\b\d+\b/g, (match) => {
-      return '<span style="color:red">' + match + "</span>";
-    });
-
-    return <div dangerouslySetInnerHTML={{ __html: styledNumbers }}></div>;
-  };
-
   const finalRender = useMemo(() => {
-    return renderFormattedCode();
+    return renderFormattedCode(unformattedCode);
   }, [unformattedCode]);
 
   return (
@@ -160,7 +157,7 @@ function App() {
       <div className="code-wrap">
         <div className="code__container">
           <h1>Code</h1>
-          {renderUnformattedCode()}
+          {renderUnformattedCode(unformattedCode)}
         </div>
         <div className="button__container">
           <button onClick={formatCode}>
@@ -171,7 +168,7 @@ function App() {
         </div>
         <div className="code__container">
           <h1>{showFormatted ? "Formatted" : "Unformatted"}</h1>
-          {showFormatted ? finalRender : renderUnformattedCode()}
+          {showFormatted ? finalRender : renderUnformattedCode(unformattedCode)}
         </div>
       </div>
     </div>
