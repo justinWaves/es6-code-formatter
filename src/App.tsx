@@ -58,7 +58,11 @@ const renderFormattedCode = (unformattedCode: String[]) => {
     return "<span style={{color:red}}>" + match + "</span>";
   });
 
-  return <div>{styledNumbers}</div>;
+  const finalFormattedCode = styledNumbers.split(/(<([^>]+)>)/gi);
+
+  console.log(finalFormattedCode);
+
+  return <>{finalFormattedCode}</>;
 };
 
 const renderUnformattedCode = (unformattedCode: String[]) => {
