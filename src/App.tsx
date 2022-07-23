@@ -10,14 +10,30 @@ const renderFormattedCode = (unformattedCode: String[]) => {
 
   const compiledCodeToString = preserveSpacesAndLineBreaks.flat().join("");
 
-  const styledStringLiterals = compiledCodeToString.replace(
+  const codeWithStyledStringLiterals = compiledCodeToString.replace(
     /['"`](.*?)['"`]/g,
     (match) => {
       return "<span style={{color:green}}>" + match + "</span>";
     }
   );
 
-  const identifiedVariables = styledStringLiterals.match(
+  const identifiedStringLiterals =
+    compiledCodeToString.match(/['"`](.*?)['"`]/g);
+
+  // const regexForCodeSplitToArray = () => {
+  //   if (identifiedStringLiterals) {
+  //     return new RegExp(identifiedStringLiterals.join("|"), "g");
+  //   } else {
+  //     return "";
+  //   }
+  // };
+
+  // const codeSplitIntoArraySeperatedByStringLiterals =
+  //   compiledCodeToString.split(regexForCodeSplitToArray());
+
+  // console.log(codeSplitIntoArraySeperatedByStringLiterals);
+
+  const identifiedVariables = codeWithStyledStringLiterals.match(
     /(?<=let\s+|var\s+|const\s+)(.*?)(?==)/g
   );
 
@@ -33,7 +49,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
     }
   };
 
-  const styledVariables = styledStringLiterals.replace(
+  const styledVariables = codeWithStyledStringLiterals.replace(
     regexForVariableSearch(),
     (match) => {
       return (
@@ -58,11 +74,11 @@ const renderFormattedCode = (unformattedCode: String[]) => {
     return "<span style={{color:red}}>" + match + "</span>";
   });
 
-  const finalFormattedCode = styledNumbers.split(/(<([^>]+)>)/gi);
+  // const finalFormattedCode = styledNumbers.split(/(<([^>]+)>)/gi);
 
-  console.log(finalFormattedCode);
+  // console.log(finalFormattedCode);
 
-  return <>{finalFormattedCode}</>;
+  return <>{styledNumbers}</>;
 };
 
 const renderUnformattedCode = (unformattedCode: String[]) => {
