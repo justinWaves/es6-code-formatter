@@ -13,7 +13,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
   const styledStringLiterals = compiledCodeToString.replace(
     /['"`](.*?)['"`]/g,
     (match) => {
-      return '<span style="color:green">' + match + "</span>";
+      return "<span style={{color:green}}>" + match + "</span>";
     }
   );
 
@@ -36,7 +36,9 @@ const renderFormattedCode = (unformattedCode: String[]) => {
   const styledVariables = styledStringLiterals.replace(
     regexForVariableSearch(),
     (match) => {
-      return '<span style="color:blue; font-weight:bold;">' + match + "</span>";
+      return (
+        "<span style={{color:blue; font-weight:bold;}}>" + match + "</span>"
+      );
     }
   );
 
@@ -53,10 +55,10 @@ const renderFormattedCode = (unformattedCode: String[]) => {
   );
 
   const styledNumbers = styleReservedKeywords.replace(/\b\d+\b/g, (match) => {
-    return '<span style="color:red">' + match + "</span>";
+    return "<span style={{color:red}}>" + match + "</span>";
   });
 
-  return <div dangerouslySetInnerHTML={{ __html: styledNumbers }}></div>;
+  return <div>{styledNumbers}</div>;
 };
 
 const renderUnformattedCode = (unformattedCode: String[]) => {
