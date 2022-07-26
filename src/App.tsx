@@ -10,12 +10,13 @@ const renderFormattedCode = (unformattedCode: String[]) => {
 
   const compiledCodeToString = preserveSpacesAndLineBreaks.flat().join("");
 
-  const codeWithInsertedKeysForSplit = compiledCodeToString.replace(
-    /['"`](.*?)['"`]/g,
-    (match) => {
+  const codeWithInsertedKeysForSplit = compiledCodeToString
+    .replace(/['"`](.*?)['"`]/g, (match) => {
       return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
-    }
-  );
+    })
+    .replace(/(<br\/>)/gi, (match) => {
+      return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
+    });
 
   const identifiedStringLiterals =
     compiledCodeToString.match(/['"`](.*?)['"`]/g) ?? [];
@@ -32,6 +33,9 @@ const renderFormattedCode = (unformattedCode: String[]) => {
           {element}
         </span>
       );
+    }
+    if (element === "<br/>") {
+      codeArrayWithStyledStringLiterals.splice(index, 1, <br key={index} />);
     } else {
       codeArrayWithStyledStringLiterals.push(element);
     }
@@ -80,7 +84,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
 
   // const finalFormattedCode = styledNumbers.split(/(<([^>]+)>)/gi);
 
-  // console.log(finalFormattedCode);
+  console.log(codeArrayWithStyledStringLiterals);
 
   return codeArrayWithStyledStringLiterals;
 };
