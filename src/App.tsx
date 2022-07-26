@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { getEnvironmentData } from "worker_threads";
 import "./App.css";
 import Dialog from "./Dialog";
 
@@ -10,75 +11,79 @@ const renderFormattedCode = (unformattedCode: String[]) => {
 
   const compiledCodeToString = preserveSpacesAndLineBreaks.flat().join("");
 
-  const codeWithStyledStringLiterals = compiledCodeToString.replace(
+  const codeWithInsertedKeysForSplit = compiledCodeToString.replace(
     /['"`](.*?)['"`]/g,
     (match) => {
-      return "<span style={{color:green}}>" + match + "</span>";
+      return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
     }
   );
 
   const identifiedStringLiterals =
-    compiledCodeToString.match(/['"`](.*?)['"`]/g);
+    compiledCodeToString.match(/['"`](.*?)['"`]/g) ?? "";
 
-  // const regexForCodeSplitToArray = () => {
-  //   if (identifiedStringLiterals) {
-  //     return new RegExp(identifiedStringLiterals.join("|"), "g");
+  const codeArraySeparatedByStringLiterals =
+    codeWithInsertedKeysForSplit.split("123456789!@#$%^&*");
+
+  let codeArrayWithStyledStringLiterals = ["" || {}];
+
+  for (let element of codeArraySeparatedByStringLiterals) {
+    if (identifiedStringLiterals.indexOf(element)) {
+      codeArrayWithStyledStringLiterals.push(
+        <span style={{ color: "green" }}> , {element} , </span>
+      );
+    } else {
+      codeArrayWithStyledStringLiterals.push(element);
+    }
+  }
+
+  console.log(codeArrayWithStyledStringLiterals);
+
+  // const identifiedVariables = codeWithStyledStringLiterals.match(
+  //   /(?<=let\s+|var\s+|const\s+)(.*?)(?==)/g
+  // );
+
+  // const variablesWithoutSpaces = identifiedVariables?.map((item) =>
+  //   item.trim()
+  // );
+
+  // const regexForVariableSearch = () => {
+  //   if (variablesWithoutSpaces) {
+  //     return new RegExp(variablesWithoutSpaces.join("|"), "g");
   //   } else {
   //     return "";
   //   }
   // };
 
-  // const codeSplitIntoArraySeperatedByStringLiterals =
-  //   compiledCodeToString.split(regexForCodeSplitToArray());
+  // const styledVariables = codeWithStyledStringLiterals.replace(
+  //   regexForVariableSearch(),
+  //   (match) => {
+  //     return (
+  //       "<span style={{color:blue; font-weight:bold;}}>" + match + "</span>"
+  //     );
+  //   }
+  // );
 
-  // console.log(codeSplitIntoArraySeperatedByStringLiterals);
+  // const regexForKeywordSearch = new RegExp(
+  //   "\\b(" + reservedKeywordList.join("|") + ")\\b" + "(?![^{{]*}})",
+  //   "g"
+  // );
 
-  const identifiedVariables = codeWithStyledStringLiterals.match(
-    /(?<=let\s+|var\s+|const\s+)(.*?)(?==)/g
-  );
+  // const styleReservedKeywords = styledVariables.replace(
+  //   regexForKeywordSearch,
+  //   (match) => {
+  //     return "<strong>" + match + "</strong>";
+  //   }
+  // );
 
-  const variablesWithoutSpaces = identifiedVariables?.map((item) =>
-    item.trim()
-  );
-
-  const regexForVariableSearch = () => {
-    if (variablesWithoutSpaces) {
-      return new RegExp(variablesWithoutSpaces.join("|"), "g");
-    } else {
-      return "";
-    }
-  };
-
-  const styledVariables = codeWithStyledStringLiterals.replace(
-    regexForVariableSearch(),
-    (match) => {
-      return (
-        "<span style={{color:blue; font-weight:bold;}}>" + match + "</span>"
-      );
-    }
-  );
-
-  const regexForKeywordSearch = new RegExp(
-    "\\b(" + reservedKeywordList.join("|") + ")\\b" + "(?![^{{]*}})",
-    "g"
-  );
-
-  const styleReservedKeywords = styledVariables.replace(
-    regexForKeywordSearch,
-    (match) => {
-      return "<strong>" + match + "</strong>";
-    }
-  );
-
-  const styledNumbers = styleReservedKeywords.replace(/\b\d+\b/g, (match) => {
-    return "<span style={{color:red}}>" + match + "</span>";
-  });
+  // const styledNumbers = styleReservedKeywords.replace(/\b\d+\b/g, (match) => {
+  //   return "<span style={{color:red}}>" + match + "</span>";
+  // });
 
   // const finalFormattedCode = styledNumbers.split(/(<([^>]+)>)/gi);
 
   // console.log(finalFormattedCode);
 
-  return <>{styledNumbers}</>;
+  return <>{codeArrayWithStyledStringLiterals}</>;
 };
 
 const renderUnformattedCode = (unformattedCode: String[]) => {
