@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { getEnvironmentData } from "worker_threads";
 import "./App.css";
 import Dialog from "./Dialog";
 
@@ -19,24 +18,24 @@ const renderFormattedCode = (unformattedCode: String[]) => {
   );
 
   const identifiedStringLiterals =
-    compiledCodeToString.match(/['"`](.*?)['"`]/g) ?? "";
+    compiledCodeToString.match(/['"`](.*?)['"`]/g) ?? [];
 
   const codeArraySeparatedByStringLiterals =
     codeWithInsertedKeysForSplit.split("123456789!@#$%^&*");
 
-  let codeArrayWithStyledStringLiterals = ["" || {}];
+  let codeArrayWithStyledStringLiterals: (string | object)[] = [];
 
-  for (let element of codeArraySeparatedByStringLiterals) {
-    if (identifiedStringLiterals.indexOf(element)) {
+  codeArraySeparatedByStringLiterals.forEach((element, index) => {
+    if (identifiedStringLiterals.includes(element)) {
       codeArrayWithStyledStringLiterals.push(
-        <span style={{ color: "green" }}> , {element} , </span>
+        <span key={index} style={{ color: "green" }}>
+          {element}
+        </span>
       );
     } else {
       codeArrayWithStyledStringLiterals.push(element);
     }
-  }
-
-  console.log(codeArrayWithStyledStringLiterals);
+  });
 
   // const identifiedVariables = codeWithStyledStringLiterals.match(
   //   /(?<=let\s+|var\s+|const\s+)(.*?)(?==)/g
@@ -83,7 +82,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
 
   // console.log(finalFormattedCode);
 
-  return <>{codeArrayWithStyledStringLiterals}</>;
+  return codeArrayWithStyledStringLiterals;
 };
 
 const renderUnformattedCode = (unformattedCode: String[]) => {
