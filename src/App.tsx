@@ -3,12 +3,17 @@ import "./App.css";
 import Dialog from "./Dialog";
 
 const renderFormattedCode = (unformattedCode: String[]) => {
+  //First the incoming array of strings is converted to single string, retaining line breaks and spaces.
+
   const preserveSpacesAndLineBreaks = unformattedCode.map((line) => {
     const output = line.replace(/\s/g, "\u00a0") + "<br/>";
     return output;
   });
 
   const compiledCodeToString = preserveSpacesAndLineBreaks.flat().join("");
+
+  //Then the string literals, and <br/> tags are selected with regex and a unique key is placed on either side
+  //to be used by the .split()
 
   const codeWithInsertedKeysForSplit = compiledCodeToString
     .replace(/['"`](.*?)['"`]/g, (match) => {
@@ -18,11 +23,18 @@ const renderFormattedCode = (unformattedCode: String[]) => {
       return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
     });
 
-  const identifiedStringLiterals =
+  //List of all string literals is stored a variable
+
+  const identifiedStringLiterals: (string | object)[] =
     compiledCodeToString.match(/['"`](.*?)['"`]/g) ?? [];
+
+  //String is split using keys that were inserted
 
   const codeArraySeparatedByStringLiterals =
     codeWithInsertedKeysForSplit.split("123456789!@#$%^&*");
+
+  //New array is created to be populated with both chunks of the code (strings)
+  //and JSX elements (objects)
 
   let codeArrayWithStyledStringLiterals: (string | object)[] = [];
 
@@ -33,13 +45,77 @@ const renderFormattedCode = (unformattedCode: String[]) => {
           {element}
         </span>
       );
-    }
-    if (element === "<br/>") {
-      codeArrayWithStyledStringLiterals.splice(index, 1, <br key={index} />);
     } else {
       codeArrayWithStyledStringLiterals.push(element);
     }
+    if (element === "<br/>") {
+      codeArrayWithStyledStringLiterals.splice(index, 1, <br key={index} />);
+    }
   });
+
+  const regexForKeywordSearch = new RegExp(
+    "\\b(" + reservedKeywordList.join("|") + ")\\b" + "(?![^{{]*}})",
+    "g"
+  );
+
+  //Loop through the incoming array and if (is a string literal...skip)
+  //search each incoming array items for numbers, reserved keywords, and variable names
+
+  // const codeWithFormattedStringAndReservedKeywords = () => {
+  //   let arr = [...codeArrayWithStyledStringLiterals];
+  //   const arrayLength = arr.length;
+  //   for (let i = 0; i < arrayLength; i++) {
+  //     if (typeof arr[i] === "string") {
+  //       arr[i].replace(regexForKeywordSearch, (match: string) => {
+  //         return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
+  //       });
+  //       arr[i].split("123456789!@#$%^&*");
+  //     } else {
+  //       continue;
+  //     }
+  //     if (identifiedStringLiterals.includes(arr[i])) {
+  //       continue;
+  //     }
+  //   }
+  // };
+
+  const codeWithFormattedStringAndReservedKeywords = () => {
+    for (const item of codeArrayWithStyledStringLiterals) {
+      if (typeof item !== "string") {
+        continue;
+      }
+      if (identifiedStringLiterals.includes(item)) {
+        continue;
+      }
+
+      item.replace(regexForKeywordSearch, (match) => {
+        return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
+      });
+
+      item.split("123456789!@#$%^&*");
+    }
+    let flatArray = codeArrayWithStyledStringLiterals.flat();
+
+    flatArray.forEach((e, i) => {
+      if (reservedKeywordList.includes(e)) {
+        codeArrayWithStyledStringLiterals.splice(i, 1, <strong>{e}</strong>);
+      }
+    });
+    return flatArray;
+  };
+
+  console.log(codeWithFormattedStringAndReservedKeywords);
+
+  // const codeWithFormattedStringsAndKeywords = () => {
+  //   let flatArray = codeArrayWithStyledStringLiterals.flat();
+
+  //   flatArray.forEach((e, i) => {
+  //     if (reservedKeywordList.includes(e)) {
+  //       codeArrayWithStyledStringLiterals.splice(i, 1, <strong>{e}</strong>);
+  //     }
+  //   });
+  //   return flatArray;
+  // };
 
   // const identifiedVariables = codeWithStyledStringLiterals.match(
   //   /(?<=let\s+|var\s+|const\s+)(.*?)(?==)/g
@@ -66,27 +142,13 @@ const renderFormattedCode = (unformattedCode: String[]) => {
   //   }
   // );
 
-  // const regexForKeywordSearch = new RegExp(
-  //   "\\b(" + reservedKeywordList.join("|") + ")\\b" + "(?![^{{]*}})",
-  //   "g"
-  // );
-
-  // const styleReservedKeywords = styledVariables.replace(
-  //   regexForKeywordSearch,
-  //   (match) => {
-  //     return "<strong>" + match + "</strong>";
-  //   }
-  // );
-
   // const styledNumbers = styleReservedKeywords.replace(/\b\d+\b/g, (match) => {
   //   return "<span style={{color:red}}>" + match + "</span>";
   // });
 
   // const finalFormattedCode = styledNumbers.split(/(<([^>]+)>)/gi);
 
-  console.log(codeArrayWithStyledStringLiterals);
-
-  return codeArrayWithStyledStringLiterals;
+  return codeWithFormattedStringAndReservedKeywords;
 };
 
 const renderUnformattedCode = (unformattedCode: String[]) => {
@@ -95,7 +157,7 @@ const renderUnformattedCode = (unformattedCode: String[]) => {
     return <div key={i}>{codeWithSpace}</div>;
   });
 };
-const reservedKeywordList = [
+const reservedKeywordList: (string | object)[] = [
   "await",
   "break",
   "case",
