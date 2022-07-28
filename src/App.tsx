@@ -113,54 +113,69 @@ const renderFormattedCode = (unformattedCode: String[]) => {
     "g"
   );
 
-  //This does not work
+  // const codeWithFormattedStringAndReservedKeywords = () => {
+  //   let arr = [...];
 
-  const arrayLength = codeArrayWithStyledStringLiterals.length;
-  for (let i = 0; i < arrayLength; i++) {
-    let str = codeArrayWithStyledStringLiterals[i] as string;
-    if (identifiedStringLiterals.includes(str)) {
+  // let stringsOnly = codeArrayWithStyledStringLiterals.filter(
+  //   (v) => typeof v === "string"
+  // ) as string[];
+
+  let codeArrayWithStringAndReservedKeywords: (string | object)[] = [];
+
+  for (let e of codeArrayWithStyledStringLiterals) {
+    if (typeof e !== "string") {
+      codeArrayWithStringAndReservedKeywords.push(e);
       continue;
     }
-    if (typeof codeArrayWithStyledStringLiterals[i] === "string") {
-      str = str.replace(regexForKeywordSearch, (match) => {
+    if (identifiedStringLiterals.includes(e)) {
+      codeArrayWithStringAndReservedKeywords.push(e);
+      continue;
+    }
+
+    e = e
+      .replace(regexForKeywordSearch, (match) => {
         return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
-      });
-    } else {
-      continue;
-    }
+      })
+      .split("123456789!@#$%^&*");
+    codeArrayWithStringAndReservedKeywords.push(e);
   }
 
-  let arr = codeArrayWithStyledStringLiterals.filter(
-    (v) => typeof v === "string"
-  ) as string[];
+  console.log(codeArrayWithStringAndReservedKeywords);
+  // const arrayLength = arr.length;
+  // for (let i = 0; i < arrayLength; i++) {
+  //   if (typeof arr[i] !== "string") {
+  //     continue;
+  //   }
+  //   if (identifiedStringLiterals.includes(arr[i] as string)) {
+  //     continue;
+  //   }
+  // let str = stringsOnly[i] as string;
+
+  // str = str.split("123456789!@#$%^&*");
+
+  //This does not work
+
+  // const arrayLength = codeArrayWithStyledStringLiterals.length;
+  // for (let i = 0; i < arrayLength; i++) {
+  //   let str = codeArrayWithStyledStringLiterals[i] as string;
+  //   if (identifiedStringLiterals.includes(str)) {
+  //     continue;
+  //   }
+  //   if (typeof codeArrayWithStyledStringLiterals[i] === "string") {
+  //     str = str.replace(regexForKeywordSearch, (match) => {
+  //       return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
+  //     });
+  //   } else {
+  //     continue;
+  //   }
+  // }
 
   //Loop through the incoming array and if (is a string literal...skip)
   //search each incoming array items for numbers, reserved keywords, and variable names
 
   // const codeWithFormattedStringAndReservedKeywords = () => {
-  //   let arr = [...codeArrayWithStyledStringLiterals];
-
-  //   const arrayLength = arr.length;
-  //   for (let i = 0; i < arrayLength; i++) {
-  //
-  //     let str = arr[i] as string;
-  //     if (typeof str === "string") {
-  //       str = str.replace(regexForKeywordSearch, (match) => {
-  //         return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
-  //       });
-  //       // str = str.split("123456789!@#$%^&*");
-  //     } else {
-  //       continue;
-  //     }
-  //   }
-  //   return arr;
-  // };
-
-  console.log(codeArrayWithStyledStringLiterals);
-
-  // const codeWithFormattedStringAndReservedKeywords = () => {
   //   for (const item of codeArrayWithStyledStringLiterals) {
-  //     if (typeof item !== "string") {
+  //     if (typeof item !== "string") {w
   //       continue;
   //     }
   //     if (identifiedStringLiterals.includes(item)) {
