@@ -264,41 +264,24 @@ const renderFormattedCode = (unformattedCode: String[]) => {
           {item}
         </span>
       );
+      continue;
+    }
+
+    if (/\d/.test(item)) {
+      finalCodeArray.push(
+        <span key={i} style={{ color: "red" }}>
+          {item}
+        </span>
+      );
+      continue;
     }
 
     if (reservedKeywordList.includes(item)) {
-      finalCodeArray.push(<strong>{item}</strong>);
+      finalCodeArray.push(<strong key={i}>{item}</strong>);
     } else {
       finalCodeArray.push(item);
     }
   }
-
-  // const variablesWithoutSpaces = identifiedVariables?.map((item) =>
-  //   item.trim()
-  // );
-
-  // const regexForVariableSearch = () => {
-  //   if (variablesWithoutSpaces) {
-  //     return new RegExp(variablesWithoutSpaces.join("|"), "g");
-  //   } else {
-  //     return "";
-  //   }
-  // };
-
-  // const styledVariables = codeWithStyledStringLiterals.replace(
-  //   regexForVariableSearch(),
-  //   (match) => {
-  //     return (
-  //       "<span style={{color:blue; font-weight:bold;}}>" + match + "</span>"
-  //     );
-  //   }
-  // );
-
-  // const styledNumbers = styleReservedKeywords.replace(/\b\d+\b/g, (match) => {
-  //   return "<span style={{color:red}}>" + match + "</span>";
-  // });
-
-  // const finalFormattedCode = styledNumbers.split(/(<([^>]+)>)/gi);
 
   return finalCodeArray;
 };
