@@ -108,10 +108,9 @@ const renderFormattedCode = (unformattedCode: String[]) => {
     }
   });
 
-  const regexForKeywordSearch = new RegExp(
-    "\\b(" + reservedKeywordList.join("|") + ")\\b" + "(?![^{{]*}})",
-    "g"
-  );
+  // const identifiedVariables = codeArrayWithStyledStringLiterals.match(
+  //   /(?<=let\s+|var\s+|const\s+)(.*?)(?==)/g
+  // );
 
   // const codeWithFormattedStringAndReservedKeywords = () => {
   //   let arr = [...];
@@ -120,87 +119,159 @@ const renderFormattedCode = (unformattedCode: String[]) => {
   //   (v) => typeof v === "string"
   // ) as string[];
 
-  let codeArrayWithStringAndReservedKeywords: (string | object)[] = [];
+  //Next the array is iterated (skipping string literals and JSX  objects)
+  // to identify the variables, separated in the array, and stored in a list to be used later.
 
-  for (let e of codeArrayWithStyledStringLiterals) {
-    if (typeof e !== "string") {
-      codeArrayWithStringAndReservedKeywords.push(e);
+  let codeArrayWithIdentifiedVariables: (string | object)[] = [];
+  let listOfIdentifiedVariables = [];
+
+  for (let item of codeArrayWithStyledStringLiterals) {
+    if (typeof item !== "string") {
+      codeArrayWithIdentifiedVariables.push(item);
       continue;
     }
-    if (identifiedStringLiterals.includes(e)) {
-      codeArrayWithStringAndReservedKeywords.push(e);
+    if (identifiedStringLiterals.includes(item)) {
+      codeArrayWithIdentifiedVariables.push(item);
+      continue;
+    }
+    let variablesFound = item.match(/(?<=let\s+|var\s+|const\s+)(.*?)(?==)/g);
+
+    if (variablesFound !== null) listOfIdentifiedVariables.push(variablesFound);
+
+    item = item
+      .replace(/(?<=let\s+|var\s+|const\s+)(.*?)(?==)/g, (match) => {
+        return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
+      })
+      .split("123456789!@#$%^&*");
+    codeArrayWithIdentifiedVariables.push(item);
+  }
+  codeArrayWithIdentifiedVariables = codeArrayWithIdentifiedVariables.flat();
+
+  // Now a similar loop will run through that array this time identifying and removing reserved
+  //keywords from the code array. This will ensure no interference with variable search in the next step.
+  const regexForKeywordSearch = new RegExp(
+    "\\b(" + reservedKeywordList.join("|") + ")\\b" + "(?![^{{]*}})",
+    "g"
+  );
+
+  let codeArrayWithSeparatedReservedKeywords: (string | object)[] = [];
+
+  for (let item of codeArrayWithIdentifiedVariables) {
+    if (typeof item !== "string") {
+      codeArrayWithSeparatedReservedKeywords.push(item);
+      continue;
+    }
+    if (identifiedStringLiterals.includes(item)) {
+      codeArrayWithSeparatedReservedKeywords.push(item);
       continue;
     }
 
-    e = e
+    item = item
       .replace(regexForKeywordSearch, (match) => {
         return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
       })
       .split("123456789!@#$%^&*");
-    codeArrayWithStringAndReservedKeywords.push(e);
+    codeArrayWithSeparatedReservedKeywords.push(item);
   }
 
-  console.log(codeArrayWithStringAndReservedKeywords);
-  // const arrayLength = arr.length;
-  // for (let i = 0; i < arrayLength; i++) {
-  //   if (typeof arr[i] !== "string") {
-  //     continue;
-  //   }
-  //   if (identifiedStringLiterals.includes(arr[i] as string)) {
-  //     continue;
-  //   }
-  // let str = stringsOnly[i] as string;
+  codeArrayWithSeparatedReservedKeywords =
+    codeArrayWithSeparatedReservedKeywords.flat();
 
-  // str = str.split("123456789!@#$%^&*");
+  //A new variable list is made removing whitespace from either side of identified variables
 
-  //This does not work
+  let trimmedVariableList = [];
 
-  // const arrayLength = codeArrayWithStyledStringLiterals.length;
-  // for (let i = 0; i < arrayLength; i++) {
-  //   let str = codeArrayWithStyledStringLiterals[i] as string;
-  //   if (identifiedStringLiterals.includes(str)) {
-  //     continue;
-  //   }
-  //   if (typeof codeArrayWithStyledStringLiterals[i] === "string") {
-  //     str = str.replace(regexForKeywordSearch, (match) => {
-  //       return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
-  //     });
-  //   } else {
-  //     continue;
-  //   }
-  // }
+  listOfIdentifiedVariables = listOfIdentifiedVariables.flat();
+  for (let e of listOfIdentifiedVariables) {
+    trimmedVariableList.push(e.trim());
+  }
 
-  //Loop through the incoming array and if (is a string literal...skip)
-  //search each incoming array items for numbers, reserved keywords, and variable names
+  // The code Array will now be looped to separate repeated instances of variables from the array
 
-  // const codeWithFormattedStringAndReservedKeywords = () => {
-  //   for (const item of codeArrayWithStyledStringLiterals) {
-  //     if (typeof item !== "string") {w
-  //       continue;
-  //     }
-  //     if (identifiedStringLiterals.includes(item)) {
-  //       continue;
-  //     }
+  const regexForVariableSearch = new RegExp(
+    "\\b(" + trimmedVariableList.join("|") + ")\\b" + "(?![^{{]*}})",
+    "g"
+  );
 
-  //     item.replace(regexForKeywordSearch, (match) => {
-  //       return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
-  //     });
+  let codeArrayWithAllVariablesSeparated: (string | object)[] = [];
 
-  //     item.split("123456789!@#$%^&*");
-  //   }
-  //   let flatArray = codeArrayWithStyledStringLiterals.flat();
+  for (let item of codeArrayWithSeparatedReservedKeywords) {
+    if (typeof item !== "string") {
+      codeArrayWithAllVariablesSeparated.push(item);
+      continue;
+    }
+    if (identifiedStringLiterals.includes(item)) {
+      codeArrayWithAllVariablesSeparated.push(item);
+      continue;
+    }
 
-  //   flatArray.forEach((e, i) => {
-  //     if (reservedKeywordList.includes(e)) {
-  //       codeArrayWithStyledStringLiterals.splice(i, 1, <strong>{e}</strong>);
-  //     }
-  //   });
-  //   return flatArray;
-  // };
+    item = item
+      .replace(regexForVariableSearch, (match) => {
+        return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
+      })
+      .split("123456789!@#$%^&*");
+    codeArrayWithAllVariablesSeparated.push(item);
+  }
 
-  // const identifiedVariables = codeWithStyledStringLiterals.match(
-  //   /(?<=let\s+|var\s+|const\s+)(.*?)(?==)/g
-  // );
+  codeArrayWithAllVariablesSeparated =
+    codeArrayWithAllVariablesSeparated.flat();
+
+  // The code Array will now be looped to identify and separate numbers
+
+  let codeArrayWithAllItemsSeparated: (string | object)[] = [];
+
+  for (let item of codeArrayWithAllVariablesSeparated) {
+    if (typeof item !== "string") {
+      codeArrayWithAllItemsSeparated.push(item);
+      continue;
+    }
+    if (identifiedStringLiterals.includes(item)) {
+      codeArrayWithAllItemsSeparated.push(item);
+      continue;
+    }
+
+    item = item
+      .replace(/[0-9]+/g, (match) => {
+        return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
+      })
+      .split("123456789!@#$%^&*");
+    console.log(item);
+    codeArrayWithAllItemsSeparated.push(item);
+  }
+  codeArrayWithAllItemsSeparated = codeArrayWithAllItemsSeparated.flat();
+
+  console.log(codeArrayWithAllItemsSeparated);
+
+  // Finally, the separated items are identified and JSX tags are inserted into the final Array
+
+  let finalCodeArray: (string | object)[] = [];
+
+  const finalArrayLength = codeArrayWithAllItemsSeparated.length;
+  for (let i = 0; i < finalArrayLength; i++) {
+    let item = codeArrayWithAllItemsSeparated[i];
+    if (typeof item !== "string") {
+      finalCodeArray.push(item);
+      continue;
+    }
+    if (identifiedStringLiterals.includes(item)) {
+      finalCodeArray.push(item);
+      continue;
+    }
+
+    if (trimmedVariableList.includes(item)) {
+      finalCodeArray.push(
+        <span key={i} style={{ color: "blue" }}>
+          {item}
+        </span>
+      );
+    }
+
+    if (reservedKeywordList.includes(item)) {
+      finalCodeArray.push(<strong>{item}</strong>);
+    } else {
+      finalCodeArray.push(item);
+    }
+  }
 
   // const variablesWithoutSpaces = identifiedVariables?.map((item) =>
   //   item.trim()
@@ -229,7 +300,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
 
   // const finalFormattedCode = styledNumbers.split(/(<([^>]+)>)/gi);
 
-  return codeArrayWithStyledStringLiterals;
+  return finalCodeArray;
 };
 
 const renderUnformattedCode = (unformattedCode: String[]) => {
