@@ -131,17 +131,17 @@ const renderFormattedCode = (unformattedCode: String[]) => {
 
   let codeArrayWithStyledStringLiterals: (string | object)[] = [];
 
-  codeArrayWithSeparatedTemplateLiterals.forEach((element, index) => {
-    if (listOfStringLiteralFragments.includes(element)) {
+  codeArrayWithSeparatedTemplateLiterals.forEach((item, index) => {
+    if (listOfStringLiteralFragments.includes(item)) {
       codeArrayWithStyledStringLiterals.push(
         <span key={index} style={{ color: "green" }}>
-          {element}
+          {item}
         </span>
       );
     } else {
-      codeArrayWithStyledStringLiterals.push(element);
+      codeArrayWithStyledStringLiterals.push(item);
     }
-    if (element === "<br/>") {
+    if (item === "<br/>") {
       codeArrayWithStyledStringLiterals.splice(
         index,
         1,
