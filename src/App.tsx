@@ -125,7 +125,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
 
   codeArrayWithSeparatedTemplateLiterals =
     codeArrayWithSeparatedTemplateLiterals.flat();
-  console.log(codeArrayWithSeparatedTemplateLiterals);
+
   //New array is created to be populated with both chunks of the code (strings)
   //and JSX elements (objects)
 
@@ -181,7 +181,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
   // Now a similar loop will run through that array this time identifying and removing reserved
   //keywords from the code array. This will ensure no interference with variable search in the next step.
   const regexForKeywordSearch = new RegExp(
-    "\\b(" + reservedKeywordList.join("|") + ")\\b" + "(?![^{{]*}})",
+    "\\b(" + reservedKeywordList.join("|") + ")\\b",
     "g"
   );
 
@@ -220,7 +220,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
   // The code Array will now be looped to separate repeated instances of variables from the array
 
   const regexForVariableSearch = new RegExp(
-    "\\b(" + trimmedVariableList.join("|") + ")\\b" + "(?![^{{]*}})",
+    "\\b(" + trimmedVariableList.join("|") + ")\\b",
     "g"
   );
 
@@ -260,6 +260,10 @@ const renderFormattedCode = (unformattedCode: String[]) => {
       codeArrayWithAllItemsSeparated.push(item);
       continue;
     }
+    if (trimmedVariableList.includes(item)) {
+      codeArrayWithAllItemsSeparated.push(item);
+      continue;
+    }
 
     item = item
       .replace(/[0-9]+/g, (match) => {
@@ -270,13 +274,14 @@ const renderFormattedCode = (unformattedCode: String[]) => {
   }
   codeArrayWithAllItemsSeparated = codeArrayWithAllItemsSeparated.flat();
 
-  // Finally, the separated items are identified and JSX tags are inserted into the final Array
+  // Finally, the separated items are identified and appropriate JSX tags are inserted into the final Array
 
   let finalCodeArray: (string | object)[] = [];
 
   const finalArrayLength = codeArrayWithAllItemsSeparated.length;
   for (let i = 0; i < finalArrayLength; i++) {
     let item = codeArrayWithAllItemsSeparated[i];
+
     if (typeof item !== "string") {
       finalCodeArray.push(item);
       continue;
@@ -295,9 +300,9 @@ const renderFormattedCode = (unformattedCode: String[]) => {
       continue;
     }
 
-    if (/\d/.test(item)) {
+    if (/\d+/.test(item) && !trimmedVariableList.includes(item)) {
       finalCodeArray.push(
-        <span key={i * 100} style={{ color: "red" }}>
+        <span key={i * 10} style={{ color: "red" }}>
           {item}
         </span>
       );
@@ -305,12 +310,11 @@ const renderFormattedCode = (unformattedCode: String[]) => {
     }
 
     if (reservedKeywordList.includes(item)) {
-      finalCodeArray.push(<strong key={i * 1000}>{item}</strong>);
+      finalCodeArray.push(<strong key={i * 10000}>{item}</strong>);
     } else {
       finalCodeArray.push(item);
     }
   }
-
   return finalCodeArray;
 };
 
