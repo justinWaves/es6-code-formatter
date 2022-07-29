@@ -269,7 +269,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
 
     if (/\d/.test(item)) {
       finalCodeArray.push(
-        <span key={i} style={{ color: "red" }}>
+        <span key={i * 100} style={{ color: "red" }}>
           {item}
         </span>
       );
@@ -277,7 +277,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
     }
 
     if (reservedKeywordList.includes(item)) {
-      finalCodeArray.push(<strong key={i}>{item}</strong>);
+      finalCodeArray.push(<strong key={i * 1000}>{item}</strong>);
     } else {
       finalCodeArray.push(item);
     }
