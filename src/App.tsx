@@ -80,21 +80,59 @@ const renderFormattedCode = (unformattedCode: String[]) => {
 
   //List of all string literals is stored a variable
 
-  const identifiedStringLiterals =
+  const identifiedStringLiterals: any =
     compiledCodeToString.match(/['"`](.*?)['"`]/g) ?? [];
 
   //String is split using keys that were inserted
 
-  const codeArraySeparatedByStringLiterals =
+  const codeArraySeparatedByStringLiterals: any =
     codeWithInsertedKeysForSplit.split("123456789!@#$%^&*");
 
+  //Now we loop through the code array to find and cut out template literals within the string literals.
+
+  let codeArrayWithSeparatedTemplateLiterals = [];
+
+  for (let item of codeArraySeparatedByStringLiterals) {
+    if (identifiedStringLiterals.includes(item)) {
+      item = item
+        .replace(/(?<=\${).*(?=})/g, (match: string) => {
+          return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
+        })
+        .split("123456789!@#$%^&*");
+
+      codeArrayWithSeparatedTemplateLiterals.push(item);
+    } else {
+      codeArrayWithSeparatedTemplateLiterals.push(item);
+    }
+  }
+
+  //the below code creates a new list of string literals, and fragments of string literals
+  //in cases where template literals are present within string, allowing the contents of
+  //template literals to be unaffected by styling
+
+  let listOfStringLiteralFragments: [][] | string[] = [];
+
+  for (let item of identifiedStringLiterals) {
+    if (item.match(/(?<=\${).*(?=})/g)) {
+      item = item.split(/(?<=\${).*(?=})/g);
+      listOfStringLiteralFragments.push(item);
+    } else {
+      listOfStringLiteralFragments.push(item);
+    }
+  }
+
+  listOfStringLiteralFragments = listOfStringLiteralFragments.flat();
+
+  codeArrayWithSeparatedTemplateLiterals =
+    codeArrayWithSeparatedTemplateLiterals.flat();
+  console.log(codeArrayWithSeparatedTemplateLiterals);
   //New array is created to be populated with both chunks of the code (strings)
   //and JSX elements (objects)
 
   let codeArrayWithStyledStringLiterals: (string | object)[] = [];
 
-  codeArraySeparatedByStringLiterals.forEach((element, index) => {
-    if (identifiedStringLiterals.includes(element)) {
+  codeArrayWithSeparatedTemplateLiterals.forEach((element, index) => {
+    if (listOfStringLiteralFragments.includes(element)) {
       codeArrayWithStyledStringLiterals.push(
         <span key={index} style={{ color: "green" }}>
           {element}
@@ -104,20 +142,13 @@ const renderFormattedCode = (unformattedCode: String[]) => {
       codeArrayWithStyledStringLiterals.push(element);
     }
     if (element === "<br/>") {
-      codeArrayWithStyledStringLiterals.splice(index, 1, <br key={index} />);
+      codeArrayWithStyledStringLiterals.splice(
+        index,
+        1,
+        <br key={index * 1111} />
+      );
     }
   });
-
-  // const identifiedVariables = codeArrayWithStyledStringLiterals.match(
-  //   /(?<=let\s+|var\s+|const\s+)(.*?)(?==)/g
-  // );
-
-  // const codeWithFormattedStringAndReservedKeywords = () => {
-  //   let arr = [...];
-
-  // let stringsOnly = codeArrayWithStyledStringLiterals.filter(
-  //   (v) => typeof v === "string"
-  // ) as string[];
 
   //Next the array is iterated (skipping string literals and JSX  objects)
   // to identify the variables, separated in the array, and stored in a list to be used later.
@@ -130,7 +161,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
       codeArrayWithIdentifiedVariables.push(item);
       continue;
     }
-    if (identifiedStringLiterals.includes(item)) {
+    if (listOfStringLiteralFragments.includes(item)) {
       codeArrayWithIdentifiedVariables.push(item);
       continue;
     }
@@ -161,7 +192,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
       codeArrayWithSeparatedReservedKeywords.push(item);
       continue;
     }
-    if (identifiedStringLiterals.includes(item)) {
+    if (listOfStringLiteralFragments.includes(item)) {
       codeArrayWithSeparatedReservedKeywords.push(item);
       continue;
     }
@@ -177,7 +208,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
   codeArrayWithSeparatedReservedKeywords =
     codeArrayWithSeparatedReservedKeywords.flat();
 
-  //A new variable list is made removing whitespace from either side of identified variables
+  //A new variable list is made removing whitespace from either side of identified variables.
 
   let trimmedVariableList = [];
 
@@ -200,7 +231,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
       codeArrayWithAllVariablesSeparated.push(item);
       continue;
     }
-    if (identifiedStringLiterals.includes(item)) {
+    if (listOfStringLiteralFragments.includes(item)) {
       codeArrayWithAllVariablesSeparated.push(item);
       continue;
     }
@@ -225,7 +256,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
       codeArrayWithAllItemsSeparated.push(item);
       continue;
     }
-    if (identifiedStringLiterals.includes(item)) {
+    if (listOfStringLiteralFragments.includes(item)) {
       codeArrayWithAllItemsSeparated.push(item);
       continue;
     }
@@ -235,12 +266,9 @@ const renderFormattedCode = (unformattedCode: String[]) => {
         return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
       })
       .split("123456789!@#$%^&*");
-    console.log(item);
     codeArrayWithAllItemsSeparated.push(item);
   }
   codeArrayWithAllItemsSeparated = codeArrayWithAllItemsSeparated.flat();
-
-  console.log(codeArrayWithAllItemsSeparated);
 
   // Finally, the separated items are identified and JSX tags are inserted into the final Array
 
@@ -253,14 +281,14 @@ const renderFormattedCode = (unformattedCode: String[]) => {
       finalCodeArray.push(item);
       continue;
     }
-    if (identifiedStringLiterals.includes(item)) {
+    if (listOfStringLiteralFragments.includes(item)) {
       finalCodeArray.push(item);
       continue;
     }
 
     if (trimmedVariableList.includes(item)) {
       finalCodeArray.push(
-        <span key={i} style={{ color: "blue" }}>
+        <span key={i * 22222} style={{ color: "blue" }}>
           {item}
         </span>
       );
