@@ -1,21 +1,9 @@
 # Hello, thank you for reviewing! 🌊🌊
 
-I had an excellent time with this coding challenge, and look forward to the review!
+### 🎉`The Second Solution`🎉
 
-🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊🌊
-
-### 🐿🐿 `Approach in a nutshell` 🐿🐿
-
-This assignment began in where most of my work begins, [Excalidraw](https://excalidraw.com/) where I map out a game plan.
-My approach was simple, compile everything into one string retaining white spaces,
-then use a series of regular expressions to locate and replace() items in the string with appropriately styled span tags
-
-### 🎉`The Solution`🎉
-
-The plan was to end up with an array of both strings and JSX.Elements to render, however this proved to be difficult
-without being allowed to install dependencies. Not given that restraint I would have used something like [This](https://www.npmjs.com/package/react-html-parser)
-My final solution was to use React's dangerouslySetInnerHTML to render the html within the string, not the most secure, but
-acceptable for this application.
+After the first code review, I ended up finding a much more secure solution that does not rely on dangerouslySetInnerHTML, and covers edge cases I missed.
+I will spare you the details in this markdown file and instead I left comments in the main branch explaining the logic block by block.
 
 ### 🎁 `Bonus Feature`🎁
 
