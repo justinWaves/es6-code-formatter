@@ -58,8 +58,7 @@ const lines = [
 ];
 
 const renderFormattedCode = (unformattedCode: String[]) => {
-  //First the incoming array of strings is converted to single string, retaining line breaks and spaces.
-
+  // First the incoming array of strings is converted to single string, retaining line breaks and spaces.
   const preserveSpacesAndLineBreaks = unformattedCode.map((line) => {
     const output = line.replace(/\s/g, "\u00a0") + "<br/>";
     return output;
@@ -67,9 +66,8 @@ const renderFormattedCode = (unformattedCode: String[]) => {
 
   const compiledCodeToString = preserveSpacesAndLineBreaks.flat().join("");
 
-  //Then the string literals, and <br/> tags are selected with regex and a unique key is placed on either side
+  // Then the string literals, and <br/> tags are selected with regex and a unique key is placed on either side
   //to be used by the .split()
-
   const codeWithInsertedKeysForSplit = compiledCodeToString
     .replace(/['"`](.*?)['"`]/g, (match) => {
       return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
@@ -78,18 +76,15 @@ const renderFormattedCode = (unformattedCode: String[]) => {
       return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
     });
 
-  //List of all string literals is stored a variable
-
+  // List of all string literals is stored a variable
   const identifiedStringLiterals: any =
     compiledCodeToString.match(/['"`](.*?)['"`]/g) ?? [];
 
-  //String is split using keys that were inserted
-
+  // String is split using keys that were inserted
   const codeArraySeparatedByStringLiterals: any =
     codeWithInsertedKeysForSplit.split("123456789!@#$%^&*");
 
-  //Now we loop through the code array to find and cut out template literals within the string literals.
-
+  // Now we loop through the code array to find and cut out template literals within the string literals.
   let codeArrayWithSeparatedTemplateLiterals = [];
 
   for (let item of codeArraySeparatedByStringLiterals) {
@@ -106,33 +101,30 @@ const renderFormattedCode = (unformattedCode: String[]) => {
     }
   }
 
-  //the below code creates a new list of string literals, and fragments of string literals
-  //in cases where template literals are present within string, allowing the contents of
-  //template literals to be unaffected by styling
-
-  let listOfStringLiteralFragments: [][] | string[] = [];
+  // The below code creates a new list of string literals, and fragments of string literals
+  //in cases where template literals are present within string.
+  let listOfStringLiteralsAndFragments: [][] | string[] = [];
 
   for (let item of identifiedStringLiterals) {
     if (item.match(/(?<=\${).*(?=})/g)) {
       item = item.split(/(?<=\${).*(?=})/g);
-      listOfStringLiteralFragments.push(item);
+      listOfStringLiteralsAndFragments.push(item);
     } else {
-      listOfStringLiteralFragments.push(item);
+      listOfStringLiteralsAndFragments.push(item);
     }
   }
 
-  listOfStringLiteralFragments = listOfStringLiteralFragments.flat();
+  listOfStringLiteralsAndFragments = listOfStringLiteralsAndFragments.flat();
 
   codeArrayWithSeparatedTemplateLiterals =
     codeArrayWithSeparatedTemplateLiterals.flat();
 
-  //New array is created to be populated with both chunks of the code (strings)
+  // New array is created to be populated with both chunks of the code (strings)
   //and JSX elements (objects)
-
   let codeArrayWithStyledStringLiterals: (string | object)[] = [];
 
   codeArrayWithSeparatedTemplateLiterals.forEach((item, index) => {
-    if (listOfStringLiteralFragments.includes(item)) {
+    if (listOfStringLiteralsAndFragments.includes(item)) {
       codeArrayWithStyledStringLiterals.push(
         <span key={index} style={{ color: "green" }}>
           {item}
@@ -150,9 +142,8 @@ const renderFormattedCode = (unformattedCode: String[]) => {
     }
   });
 
-  //Next the array is iterated (skipping string literals and JSX  objects)
-  // to identify the variables, separated in the array, and stored in a list to be used later.
-
+  // Next the array is iterated (skipping string literals and JSX objects) to identify the
+  //variables which get separated in the array. They also get stored in a list for later use.
   let codeArrayWithIdentifiedVariables: (string | object)[] = [];
   let listOfIdentifiedVariables = [];
 
@@ -161,7 +152,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
       codeArrayWithIdentifiedVariables.push(item);
       continue;
     }
-    if (listOfStringLiteralFragments.includes(item)) {
+    if (listOfStringLiteralsAndFragments.includes(item)) {
       codeArrayWithIdentifiedVariables.push(item);
       continue;
     }
@@ -192,7 +183,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
       codeArrayWithSeparatedReservedKeywords.push(item);
       continue;
     }
-    if (listOfStringLiteralFragments.includes(item)) {
+    if (listOfStringLiteralsAndFragments.includes(item)) {
       codeArrayWithSeparatedReservedKeywords.push(item);
       continue;
     }
@@ -208,8 +199,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
   codeArrayWithSeparatedReservedKeywords =
     codeArrayWithSeparatedReservedKeywords.flat();
 
-  //A new variable list is made removing whitespace from either side of identified variables.
-
+  // A new variable list is made removing whitespace from either side of identified variables.
   let trimmedVariableList = [];
 
   listOfIdentifiedVariables = listOfIdentifiedVariables.flat();
@@ -218,7 +208,6 @@ const renderFormattedCode = (unformattedCode: String[]) => {
   }
 
   // The code Array will now be looped to separate repeated instances of variables from the array
-
   const regexForVariableSearch = new RegExp(
     "\\b(" + trimmedVariableList.join("|") + ")\\b",
     "g"
@@ -231,7 +220,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
       codeArrayWithAllVariablesSeparated.push(item);
       continue;
     }
-    if (listOfStringLiteralFragments.includes(item)) {
+    if (listOfStringLiteralsAndFragments.includes(item)) {
       codeArrayWithAllVariablesSeparated.push(item);
       continue;
     }
@@ -248,7 +237,6 @@ const renderFormattedCode = (unformattedCode: String[]) => {
     codeArrayWithAllVariablesSeparated.flat();
 
   // The code Array will now be looped to identify and separate numbers
-
   let codeArrayWithAllItemsSeparated: (string | object)[] = [];
 
   for (let item of codeArrayWithAllVariablesSeparated) {
@@ -256,7 +244,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
       codeArrayWithAllItemsSeparated.push(item);
       continue;
     }
-    if (listOfStringLiteralFragments.includes(item)) {
+    if (listOfStringLiteralsAndFragments.includes(item)) {
       codeArrayWithAllItemsSeparated.push(item);
       continue;
     }
@@ -275,7 +263,6 @@ const renderFormattedCode = (unformattedCode: String[]) => {
   codeArrayWithAllItemsSeparated = codeArrayWithAllItemsSeparated.flat();
 
   // Finally, the separated items are identified and appropriate JSX tags are inserted into the final Array
-
   let finalCodeArray: (string | object)[] = [];
 
   const finalArrayLength = codeArrayWithAllItemsSeparated.length;
@@ -286,7 +273,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
       finalCodeArray.push(item);
       continue;
     }
-    if (listOfStringLiteralFragments.includes(item)) {
+    if (listOfStringLiteralsAndFragments.includes(item)) {
       finalCodeArray.push(item);
       continue;
     }
