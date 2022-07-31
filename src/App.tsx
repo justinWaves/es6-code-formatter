@@ -306,10 +306,30 @@ const renderFormattedCode = (unformattedCode: String[]) => {
 };
 
 const renderUnformattedCode = (unformattedCode: String[]) => {
-  return unformattedCode.map((line, i) => {
-    const codeWithSpace = line.replace(/\s/g, "\u00a0");
-    return <div key={i}>{codeWithSpace}</div>;
+  let codeWithPreservedLineBreaksAndSpaces = unformattedCode.map((line, i) => {
+    const output = line.replace(/\s/g, "\u00a0") + "<br/>";
+    return output;
   });
+
+  let outputCodeArray: (string | object)[] = [];
+
+  codeWithPreservedLineBreaksAndSpaces.forEach((item: any) => {
+    item = item
+      .replace(/(<br\/>)/gi, (match: string) => {
+        return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
+      })
+      .split("123456789!@#$%^&*");
+    outputCodeArray.push(item);
+  });
+
+  outputCodeArray = outputCodeArray.flat();
+
+  outputCodeArray.forEach((item, index) => {
+    if (item === "<br/>") {
+      outputCodeArray.splice(index, 1, <br key={index} />);
+    }
+  });
+  return <>{outputCodeArray}</>;
 };
 
 function App() {
