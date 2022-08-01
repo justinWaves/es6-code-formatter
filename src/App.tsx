@@ -156,14 +156,19 @@ const renderFormattedCode = (unformattedCode: String[]) => {
       codeArrayWithIdentifiedVariables.push(item);
       continue;
     }
-    let variablesFound = item.match(/(?<=let\s+|var\s+|const\s+)(.*?)(?==)/g);
+    let variablesFound = item.match(
+      /(?<=let\s+|var\s+|const\s+)(.*?)(?=\s|:|=|^of$|^in$)/g
+    );
 
     if (variablesFound !== null) listOfIdentifiedVariables.push(variablesFound);
 
     item = item
-      .replace(/(?<=let\s+|var\s+|const\s+)(.*?)(?==)/g, (match) => {
-        return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
-      })
+      .replace(
+        /(?<=let\s+|var\s+|const\s+)(.*?)(?=\s|:|=|^of$|^in$)/g,
+        (match) => {
+          return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
+        }
+      )
       .split("123456789!@#$%^&*");
     codeArrayWithIdentifiedVariables.push(item);
   }
@@ -199,17 +204,11 @@ const renderFormattedCode = (unformattedCode: String[]) => {
   codeArrayWithSeparatedReservedKeywords =
     codeArrayWithSeparatedReservedKeywords.flat();
 
-  // A new variable list is made removing whitespace from either side of identified variables.
-  let trimmedVariableList = [];
-
   listOfIdentifiedVariables = listOfIdentifiedVariables.flat();
-  for (let e of listOfIdentifiedVariables) {
-    trimmedVariableList.push(e.trim());
-  }
 
   // The code Array will now be looped to separate repeated instances of variables from the array
   const regexForVariableSearch = new RegExp(
-    "\\b(" + trimmedVariableList.join("|") + ")\\b",
+    "\\b(" + listOfIdentifiedVariables.join("|") + ")\\b",
     "g"
   );
 
@@ -248,7 +247,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
       codeArrayWithAllItemsSeparated.push(item);
       continue;
     }
-    if (trimmedVariableList.includes(item)) {
+    if (listOfIdentifiedVariables.includes(item)) {
       codeArrayWithAllItemsSeparated.push(item);
       continue;
     }
@@ -278,7 +277,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
       continue;
     }
 
-    if (trimmedVariableList.includes(item)) {
+    if (listOfIdentifiedVariables.includes(item)) {
       finalCodeArray.push(
         <span key={i * 22222} style={{ color: "blue" }}>
           {item}
@@ -287,7 +286,7 @@ const renderFormattedCode = (unformattedCode: String[]) => {
       continue;
     }
 
-    if (/\d+/.test(item) && !trimmedVariableList.includes(item)) {
+    if (/\d+/.test(item) && !listOfIdentifiedVariables.includes(item)) {
       finalCodeArray.push(
         <span key={i * 10} style={{ color: "red" }}>
           {item}
