@@ -157,18 +157,15 @@ const renderFormattedCode = (unformattedCode: String[]) => {
       continue;
     }
     let variablesFound = item.match(
-      /(?<=let\s+|var\s+|const\s+)(.*?)(?=\s|:|=|^of$|^in$)/g
+      /(?<=let\s+|var\s+|const\s+)(.*?)(?=\s|:|=)/g
     );
 
     if (variablesFound !== null) listOfIdentifiedVariables.push(variablesFound);
 
     item = item
-      .replace(
-        /(?<=let\s+|var\s+|const\s+)(.*?)(?=\s|:|=|^of$|^in$)/g,
-        (match) => {
-          return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
-        }
-      )
+      .replace(/(?<=let\s+|var\s+|const\s+)(.*?)(?=\s|:|=)/g, (match) => {
+        return "123456789!@#$%^&*" + match + "123456789!@#$%^&*";
+      })
       .split("123456789!@#$%^&*");
     codeArrayWithIdentifiedVariables.push(item);
   }
