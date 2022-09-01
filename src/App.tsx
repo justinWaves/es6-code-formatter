@@ -1,6 +1,12 @@
 import { useState, useMemo } from "react";
 import "./App.css";
-import Dialog from "./Dialog";
+import Dialog from "./components/Dialog";
+
+const lines = [
+  "for (let i = 1; i <= 10; i++) {",
+  "    console.log(`Pass number ${i}`);",
+  "}",
+];
 
 const reservedKeywordList = [
   "await",
@@ -49,12 +55,6 @@ const reservedKeywordList = [
   "while",
   "with",
   "yield",
-];
-
-const lines = [
-  "for (let i = 1; i <= 10; i++) {",
-  "    console.log(`Pass number ${i}`);",
-  "}",
 ];
 
 const renderFormattedCode = (unformattedCode: String[]) => {
